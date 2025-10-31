@@ -1,0 +1,82 @@
+import api from './api';
+
+export const adminApi = {
+  // Applicants
+  getApplicants: async () => {
+    const response = await api.get('/api/applicants');
+    return response.data;
+  },
+
+  deleteApplicant: async (id) => {
+    const response = await api.delete(`/api/applicants/${id}`);
+    return response.data;
+  },
+
+  // Recruiters
+  getRecruiters: async () => {
+    const response = await api.get('/api/recruiters');
+    return response.data;
+  },
+
+  deleteRecruiter: async (id) => {
+    const response = await api.delete(`/api/recruiters/${id}`);
+    return response.data;
+  },
+
+  // Companies
+  getCompanies: async () => {
+    const response = await api.get('/api/companies');
+    return response.data;
+  },
+
+  getCompaniesAwaitingVerification: async () => {
+    const response = await api.get('/api/companies/awaiting-verification');
+    return response.data;
+  },
+
+  verifyCompany: async (id) => {
+    const response = await api.post(`/api/companies/verify/${id}`);
+    return response.data;
+  },
+
+  deleteCompany: async (id) => {
+    const response = await api.delete(`/api/companies/${id}`);
+    return response.data;
+  },
+
+  // Jobs
+  getJobs: async () => {
+    const response = await api.get('/api/jobs');
+    return response.data;
+  },
+
+  deleteJob: async (id) => {
+    const response = await api.delete(`/api/jobs/${id}`);
+    return response.data;
+  },
+
+  // Internships
+  getInternships: async () => {
+    const response = await api.get('/api/internships');
+    return response.data;
+  },
+
+  deleteInternship: async (id) => {
+    const response = await api.delete(`/api/internships/${id}`);
+    return response.data;
+  },
+
+  // Premium Users
+  getPremiumUsers: async () => {
+    const response = await api.get('/api/admin/premium-users');
+    return response.data;
+  },
+
+  // Proof Document
+  getProofDocumentUrl: (proofId) => {
+    return `${import.meta.env.VITE_API_BASE || 'http://localhost:9000'}/api/admin/company/proof/${proofId}`;
+  },
+};
+
+export default adminApi;
+
