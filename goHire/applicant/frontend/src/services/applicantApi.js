@@ -3,7 +3,7 @@ import api from './api';
 export const applicantApi = {
   getJobs: async () => {
     const response = await api.get('/applicant/jobs');
-    return response.data;
+    return response.data.jobs;
   },
 
   getInternships: async () => {

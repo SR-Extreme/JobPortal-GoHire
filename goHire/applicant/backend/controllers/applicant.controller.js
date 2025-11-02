@@ -19,8 +19,12 @@ const getJobs = async (req, res) => {
       path: 'jobCompany',
       strictPopulate: false
     }).lean();
-
-    res.json(JobFind);
+    
+    res.status(200).json({
+      message: "success",
+      results: JobFind.length,
+      jobs: JobFind
+    })
   } catch (err) {
     console.error('Error fetching jobs:', err);
     res.status(500).json({ error: 'Internal Server Error' });
