@@ -10,10 +10,7 @@ const initGridFS = async () => {
   if (!conn) {
     const mongoURI = process.env.MONGO_URI_RECRUITERS || "mongodb://localhost:27017/recruiter_db";
     
-    conn = mongoose.createConnection(mongoURI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true
-    });
+    conn = mongoose.createConnection(mongoURI);
 
     conn.once('open', () => {
       console.log('✅ Admin GridFS connected');
