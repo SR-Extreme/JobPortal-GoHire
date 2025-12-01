@@ -1,15 +1,12 @@
-import { Outlet, useLocation } from 'react-router-dom';
-import Navbar from '../components/ui/Navbar';
+import { Outlet } from 'react-router-dom';
+import Navbar from '../components/common/Navbar';
 import Footer from '../components/common/Footer';
 
 const MainLayout = () => {
-  const location = useLocation();
-  const isHomePage = location.pathname === '/';
-
   return (
     <div className="min-h-screen flex flex-col">
-      {!isHomePage && <Navbar />}
-      <main className="flex-grow">
+      <Navbar />
+      <main className="flex-grow pt-24">
         <Outlet />
       </main>
       <Footer />
