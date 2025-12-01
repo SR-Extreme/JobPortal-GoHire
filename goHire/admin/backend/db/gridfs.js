@@ -12,16 +12,36 @@ const initGridFS = async () => {
     
     conn = mongoose.createConnection(mongoURI);
 
-    conn.once('open', () => {
-      console.log('✅ Admin GridFS connected');
+    // Wait for connection to be ready
+    await new Promise((resolve, reject) => {
+      conn.once('open', () => {
+        console.log('✅ Admin GridFS connected');
 
-      bucket = new GridFSBucket(conn.db, {
-        bucketName: 'uploads'
+        bucket = new GridFSBucket(conn.db, {
+          bucketName: 'uploads'
+        });
+
+        gfs = new mongoose.mongo.GridFSBucket(conn.db, {
+          bucketName: 'uploads'
+        });
+        
+        resolve();
       });
 
-      gfs = new mongoose.mongo.GridFSBucket(conn.db, {
-        bucketName: 'uploads'
+      conn.on('error', (err) => {
+        console.error('GridFS connection error:', err);
+        reject(err);
       });
+    });
+  } else if (conn.readyState !== 1) {
+    // Connection exists but not ready, wait for it
+    await new Promise((resolve, reject) => {
+      if (conn.readyState === 1) {
+        resolve();
+      } else {
+        conn.once('open', resolve);
+        conn.on('error', reject);
+      }
     });
   }
   
