@@ -70,21 +70,74 @@ const getInternshipApplications = async (req, res) => {
       }
     }
 
-    const premiumUsers = await PremiumUser.find({}, 'userId');
-    const premiumUserIds = premiumUsers.map(user => user.userId);
+    // Fetch premium users from applicant database
+    const premiumUsers = await PremiumUser.find({});
+    const premiumUserIds = premiumUsers.map(user => user.userId?.toString()).filter(Boolean);
+    const premiumUserEmails = premiumUsers.map(user => user.email?.toLowerCase()).filter(Boolean);
 
-    const premiumApplicants = [];
-    const normalApplicants = [];
+    console.log(`[DEBUG] Found ${premiumUsers.length} premium users`);
+    console.log(`[DEBUG] Premium user IDs: ${premiumUserIds.slice(0, 5).join(', ')}...`);
+    console.log(`[DEBUG] Total applicants: ${allApplicants.length}`);
+
+    // Sort applicants: pending first, then premium, then by time (newest first)
+    // Group 1: Pending + Premium
+    // Group 2: Pending + Normal
+    // Group 3: Selected/Rejected + Premium
+    // Group 4: Selected/Rejected + Normal
+    const pendingPremiumApplicants = [];
+    const pendingNormalApplicants = [];
+    const processedPremiumApplicants = [];
+    const processedNormalApplicants = [];
 
     allApplicants.forEach(applicant => {
-      if (premiumUserIds.includes(applicant.userId)) {
-        premiumApplicants.push(applicant);
+      const applicantUserId = applicant.userId?.toString();
+      const applicantEmail = applicant.email?.toLowerCase();
+      
+      // Check if applicant is premium by userId or email
+      const isPremium = premiumUserIds.includes(applicantUserId) || 
+                       premiumUserEmails.includes(applicantEmail);
+      
+      // Check if application is pending (not selected and not rejected)
+      const isPending = !applicant.isSelected && !applicant.isRejected;
+      
+      if (isPending) {
+        if (isPremium) {
+          pendingPremiumApplicants.push(applicant);
+        } else {
+          pendingNormalApplicants.push(applicant);
+        }
       } else {
-        normalApplicants.push(applicant);
+        if (isPremium) {
+          processedPremiumApplicants.push(applicant);
+        } else {
+          processedNormalApplicants.push(applicant);
+        }
       }
     });
 
-    const sortedApplicants = [...premiumApplicants, ...normalApplicants];
+    console.log(`[DEBUG] Pending Premium: ${pendingPremiumApplicants.length}, Pending Normal: ${pendingNormalApplicants.length}`);
+    console.log(`[DEBUG] Processed Premium: ${processedPremiumApplicants.length}, Processed Normal: ${processedNormalApplicants.length}`);
+
+    // Sort each group by time (newest first)
+    // Use AppliedAt if available, otherwise use createdAt
+    const sortByTime = (a, b) => {
+      const dateA = a.AppliedAt || a.createdAt || new Date(0);
+      const dateB = b.AppliedAt || b.createdAt || new Date(0);
+      return new Date(dateB) - new Date(dateA); // Descending order (newest first)
+    };
+
+    pendingPremiumApplicants.sort(sortByTime);
+    pendingNormalApplicants.sort(sortByTime);
+    processedPremiumApplicants.sort(sortByTime);
+    processedNormalApplicants.sort(sortByTime);
+
+    // Combine: pending premium, pending normal, then processed premium, processed normal
+    const sortedApplicants = [
+      ...pendingPremiumApplicants,
+      ...pendingNormalApplicants,
+      ...processedPremiumApplicants,
+      ...processedNormalApplicants
+    ];
 
     res.json({
       success: true,

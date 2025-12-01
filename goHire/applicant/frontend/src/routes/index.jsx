@@ -6,6 +6,7 @@ import ProtectedRoute from '../components-guard/ProtectedRoute';
 // Auth Pages
 import Login from '../pages/Login';
 import Signup from '../pages/Signup';
+import ForgotPassword from '../pages/ForgotPassword';
 
 // Main Pages
 import Home from '../pages/Home';
@@ -53,6 +54,11 @@ const AppRoutes = () => {
         <Route path="/signup" element={
           <PublicRoute>
             <Signup />
+          </PublicRoute>
+        } />
+        <Route path="/forgot-password" element={
+          <PublicRoute>
+            <ForgotPassword />
           </PublicRoute>
         } />
 

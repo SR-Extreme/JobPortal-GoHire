@@ -1,7 +1,19 @@
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
+import { useState, useEffect } from 'react';
 
 const CompanyForm = ({ initialValues, onSubmit, isSubmitting, submitButtonText = "Submit", showProofDocument = true }) => {
+  const [previewUrl, setPreviewUrl] = useState(null);
+
+  // Clean up preview URL when component unmounts or file changes
+  useEffect(() => {
+    return () => {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
+
   // Validation schema
   const validationSchema = Yup.object({
     companyName: Yup.string()
@@ -26,13 +38,13 @@ const CompanyForm = ({ initialValues, onSubmit, isSubmitting, submitButtonText =
         return ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'].includes(value.type);
       }),
     proofDocument: Yup.mixed()
-      .nullable()
+      .required('Proof document is required')
       .test('fileSize', 'Proof document file size must be less than 10MB', (value) => {
-        if (!value) return true; // Optional field
+        if (!value) return false;
         return value.size <= 10 * 1024 * 1024;
       })
       .test('fileType', 'Proof document must be a PDF, JPG, or PNG file', (value) => {
-        if (!value) return true; // Optional field
+        if (!value) return false;
         return ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'].includes(value.type);
       }),
   });
@@ -188,9 +200,9 @@ const CompanyForm = ({ initialValues, onSubmit, isSubmitting, submitButtonText =
                   htmlFor="proofDocument"
                   className="block text-sm font-semibold text-blue-800"
                 >
-                  Proof Document
+                  Proof Document <span className="text-yellow-500">*</span>
                   <span className="text-gray-500 text-xs font-normal ml-2">
-                    (Optional - PDF, JPG, PNG, max 10MB)
+                    (PDF, JPG, PNG, max 10MB)
                   </span>
                 </label>
                 <div className="relative group">
@@ -215,6 +227,21 @@ const CompanyForm = ({ initialValues, onSubmit, isSubmitting, submitButtonText =
                 onChange={(event) => {
                   const file = event.currentTarget.files[0];
                   setFieldValue('proofDocument', file);
+                  
+                  // Create preview URL
+                  if (file) {
+                    // Clean up previous preview URL
+                    if (previewUrl) {
+                      URL.revokeObjectURL(previewUrl);
+                    }
+                    const url = URL.createObjectURL(file);
+                    setPreviewUrl(url);
+                  } else {
+                    if (previewUrl) {
+                      URL.revokeObjectURL(previewUrl);
+                      setPreviewUrl(null);
+                    }
+                  }
                 }}
                 className={`mt-1 w-full rounded-md border ${
                   errors.proofDocument && touched.proofDocument
@@ -223,9 +250,28 @@ const CompanyForm = ({ initialValues, onSubmit, isSubmitting, submitButtonText =
                 } p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100`}
               />
               {values.proofDocument && (
-                <p className="mt-1 text-sm text-gray-600">
-                  Selected: {values.proofDocument.name}
-                </p>
+                <div className="mt-2">
+                  <p className="text-sm text-gray-600 mb-2">
+                    Selected: {values.proofDocument.name}
+                  </p>
+                  {previewUrl && (
+                    <div className="mt-3 border border-gray-300 rounded-lg overflow-hidden">
+                      {values.proofDocument.type === 'application/pdf' ? (
+                        <iframe
+                          src={previewUrl}
+                          className="w-full h-96"
+                          title="PDF Preview"
+                        />
+                      ) : (
+                        <img
+                          src={previewUrl}
+                          alt="Document Preview"
+                          className="w-full h-auto max-h-96 object-contain"
+                        />
+                      )}
+                    </div>
+                  )}
+                </div>
               )}
               <ErrorMessage
                 name="proofDocument"

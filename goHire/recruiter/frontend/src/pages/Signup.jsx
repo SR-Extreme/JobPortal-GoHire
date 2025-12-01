@@ -229,13 +229,20 @@ const Signup = () => {
             <label htmlFor="termsAgree">
               By signing up, you agree to our{" "}
               <Link
-                to="/privacy-policy"
+                to="/privacy"
                 className="text-yellow-600 hover:underline"
+                target="_blank"
+                rel="noopener noreferrer"
               >
                 Privacy Policy
               </Link>{" "}
               and{" "}
-              <Link to="/terms" className="text-yellow-600 hover:underline">
+              <Link 
+                to="/terms" 
+                className="text-yellow-600 hover:underline"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 Terms of Use
               </Link>
               .

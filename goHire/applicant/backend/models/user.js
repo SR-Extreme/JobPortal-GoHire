@@ -45,7 +45,9 @@ const userSchema = new mongoose.Schema({
   profileImageId: { 
     type: mongoose.Schema.Types.ObjectId,
     ref: 'uploads.files'
-  }
+  },
+  otp: { type: String, default: null },
+  otpExpiry: { type: Date, default: null }
 }, { timestamps: true });
 
 module.exports = mongoose.model('User', userSchema);
