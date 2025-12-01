@@ -1,6 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import AuthLayout from '../layouts/AuthLayout';
 import MainLayout from '../layouts/MainLayout';
 import ProtectedRoute from '../components-guard/ProtectedRoute';
 
@@ -47,16 +46,12 @@ const AppRoutes = () => {
         {/* Auth Routes */}
         <Route path="/login" element={
           <PublicRoute>
-            <AuthLayout>
-              <Login />
-            </AuthLayout>
+            <Login />
           </PublicRoute>
         } />
         <Route path="/signup" element={
           <PublicRoute>
-            <AuthLayout>
-              <Signup />
-            </AuthLayout>
+            <Signup />
           </PublicRoute>
         } />
 
