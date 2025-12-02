@@ -129,8 +129,41 @@ const getProfile = async (req, res) => {
 
 const updateProfile = async (req, res) => {
   try {
-    const { firstName, lastName, email, phone, gender, currentPassword, newPassword, confirmNewPassword } = req.body;
-    const userId = req.session.user.id;
+    
+    
+const {firstName, lastName, email, phone, gender, currentPassword, newPassword, confirmNewPassword,
+    // Additional fields
+    collegeName,
+    skills,
+    about,
+    linkedinProfile,
+    githubProfile,
+    portfolioWebsite,
+    workExperience,
+    achievements
+  } = req.body;
+  const userId = req.session.user.id;
+
+  // Prepare update object with all fields
+  const updateData = {
+    firstName, 
+    lastName, 
+    email, 
+    phone, 
+    gender
+  };
+
+  // Add additional fields if they are provided
+  if (collegeName !== undefined) updateData.collegeName = collegeName;
+  if (skills !== undefined) updateData.skills = skills;
+  if (about !== undefined) updateData.about = about;
+  if (linkedinProfile !== undefined) updateData.linkedinProfile = linkedinProfile;
+  if (githubProfile !== undefined) updateData.githubProfile = githubProfile;
+  if (portfolioWebsite !== undefined) updateData.portfolioWebsite = portfolioWebsite;
+  if (workExperience !== undefined) updateData.workExperience = workExperience;
+  if (achievements !== undefined) updateData.achievements = achievements;
+
+ 
 
     const updatedUser = await User.findOneAndUpdate(
       { userId },
