@@ -126,7 +126,7 @@ const SearchResults = () => {
                     : 'bg-white text-blue-600 hover:bg-gray-50'
                     }`}
                 >
-                  Jobs ({totalJobs})
+                  Jobs [{totalJobs}]
                 </button>
                 <button
                   type="button"
@@ -136,7 +136,7 @@ const SearchResults = () => {
                     : 'bg-white text-blue-600 hover:bg-gray-50'
                     }`}
                 >
-                  Internships ({totalInternships})
+                  Internships [{totalInternships}]
                 </button>
               </div>
             </div>
