@@ -2,12 +2,14 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import signupImg from "../assets/images/header_image.webp";
+import { validateEmail } from "../utils/emailValidation";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [emailError, setEmailError] = useState("");
   const { login } = useAuth();
   const navigate = useNavigate();
 
@@ -18,11 +20,27 @@ const Login = () => {
 
     try {
       const response = await login(email, password);
-      if (response.success) {
+      if (response && response.success) {
         navigate("/");
+      } else {
+        setError(response?.message || "Login failed. Please try again.");
       }
     } catch (err) {
-      setError(err.response?.data?.message || err.response?.data?.error || "Login failed. Please try again.");
+      console.error('Login error:', err);
+      let errorMessage = "Login failed. Please try again.";
+      
+      // Check for network errors
+      if (err.code === 'ERR_NETWORK' || err.message?.includes('Network Error') || err.message?.includes('connect to server')) {
+        errorMessage = "Cannot connect to server. Please ensure the backend server is running on port 3000.";
+      } else if (err.response?.data?.message) {
+        errorMessage = err.response.data.message;
+      } else if (err.response?.data?.error) {
+        errorMessage = err.response.data.error;
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+      
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -67,10 +85,24 @@ const Login = () => {
               type="email"
               required
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                setEmailError("");
+              }}
+              onBlur={(e) => {
+                const error = validateEmail(e.target.value);
+                setEmailError(error);
+              }}
               placeholder="Enter your email"
-              className="mt-1 w-full rounded-md border border-blue-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={`mt-1 w-full rounded-md border p-2 focus:outline-none focus:ring-2 ${
+                emailError
+                  ? "border-red-500 focus:ring-red-500"
+                  : "border-blue-300 focus:ring-blue-500"
+              }`}
             />
+            {emailError && (
+              <p className="mt-1 text-sm text-red-600">{emailError}</p>
+            )}
           </div>
 
           {/* Password */}

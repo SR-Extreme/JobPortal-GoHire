@@ -35,16 +35,30 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    // Handle 401 errors (token expired/invalid)
+    // 1️⃣ Network / backend-down errors
+    if (error.code === 'ERR_NETWORK' || error.message === 'Network Error') {
+      console.error('Network Error: Backend server may not be running');
+      console.error('Attempted URL:', error.config?.url);
+      console.error('Base URL:', error.config?.baseURL);
+
+      error.message =
+        'Cannot connect to server. Please ensure the backend server is running on port 3000.';
+    }
+
+    // 2️⃣ Unauthorized (JWT expired / invalid)
     if (error.response?.status === 401) {
-      // Clear token and redirect to login
+      // Clear auth data ONLY
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      window.location.href = '/login';
+
+      // ❌ Do NOT redirect here
+      // ✅ Let AuthContext / route guards handle it
     }
+
     return Promise.reject(error);
   }
 );
+
 
 export default api;
 
